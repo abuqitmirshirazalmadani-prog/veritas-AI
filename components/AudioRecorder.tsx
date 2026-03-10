@@ -11,6 +11,8 @@ export default function AudioRecorder({ onRecordComplete }: AudioRecorderProps) 
   const [isRecording, setIsRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -21,16 +23,21 @@ export default function AudioRecorder({ onRecordComplete }: AudioRecorderProps) 
       if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
         mediaRecorderRef.current.stop();
       }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
     };
   }, []);
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setStream(mediaStream);
+      streamRef.current = mediaStream;
       
       const options: MediaRecorderOptions = {};
       
-      mediaRecorderRef.current = new MediaRecorder(stream, options);
+      mediaRecorderRef.current = new MediaRecorder(mediaStream, options);
       audioChunksRef.current = [];
 
       mediaRecorderRef.current.ondataavailable = (event) => {
