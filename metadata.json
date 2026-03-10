@@ -1,0 +1,5 @@
+{
+  "name": "Veritas AI - Lie Detector",
+  "description": "Analyze voice tone, facial micro-expressions, and text patterns to estimate if someone might be lying.",
+  "requestFramePermissions": ["camera", "microphone"]
+}
